@@ -18,8 +18,10 @@ app.get('/users', async (req, res) =>{
     const allUsers = await User.getAll();
     res.json(allUsers);
 });
-app.get('users/:id', async (req, res) => {
-    const theUser = await User.getById(req.params.id);
+
+app.get('/users/:id', async (req, res) => {
+    const {id} = req.params;
+    const theUser = await User.getById(id);
     res.json(theUser);
 });
 
