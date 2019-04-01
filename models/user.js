@@ -50,18 +50,22 @@ class User {
             })
         }
 
+        static delete(id) {
+            return db.result('delete from users where id=$1', [id]);
+        }
 
-        static add(userData) {
+
+        static add(first_name, last_name, email, password) {
             // do an insert into the database
             // not using ${} because I don't want to interpolate
             // using ${} so that pg-promise does *safe* interpolation
             return db.one(`
             insert into users 
-                (first_name, last_name, email, password 
+                (first_name, last_name, email, password) 
             values 
                 ($1, $2, $3, $4)
                 returning id
-                `, [userData.first_name, userData.last_name, userData.email, userData.password])
+                `, [first_name, last_name, email, password])
             .then((data) => {
                 console.log("you did the thing! Good job!")
 
