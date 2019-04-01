@@ -50,6 +50,25 @@ class User {
             })
         }
 
+
+        static add(userData) {
+            // do an insert into the database
+            // not using ${} because I don't want to interpolate
+            // using ${} so that pg-promise does *safe* interpolation
+            return db.one(`
+            insert into users 
+                (first_name, last_name, email, password 
+            values 
+                ($1, $2, $3, $4)
+                returning id
+                `, [userData.first_name, userData.last_name, userData.email, userData.password])
+            .then((data) => {
+                console.log("you did the thing! Good job!")
+
+                return data;
+            })
+        }
+
     save(){
         // use .result when you might want a report about 
         // how many rows got affected
