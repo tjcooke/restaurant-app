@@ -1,56 +1,39 @@
 const express = require('express');
 const app = express();
-const http = require('http');
-const querystring = require('querystring');
-app.use(express.urlencoded({extended:true}))
-
-const hostname = '127.0.0.1';
+const handlers = require('./handlers');
+const es6Renderer = require('express-es6-template-engine')
+app.use(express.urlencoded({extended:true}));
+const {getRestaurants, postRestaurants, putRestaurants, deleteRestaurants, getUsers, getUserById, postUsers, deleteUser} = handlers;
 const port = 3000;
 
-const Restaurant = require('./models/restaurants')
-const User = require('./models/user');
+app.engine('html', es6Renderer) // introduce them:
+// "hey app, meet es6Renderer, they speak HTML"
 
-app.get('/restaurants', async (req, res) => {
-    const allRestaurants = await Restaurant.getAll();
-    res.json(allRestaurants);
+app.set('view engine', 'html'); // tell express to use as its view engine the thing that speaks html.
+
+app.set('views', 'views'); // tell express where to find the view files. (The second argument is the name of the directory where my template files will live.)
+
+// When they ask for the login page, send the login form.
+app.get('/login', (req, res) => {
+    // res.send('this is the login form')
+    res.render('login-form');
 });
 
-app.post('/restaurants', async (req, res) => {
-    res.send('You added a restaurant!')
-});
+app.get('/restaurants', getRestaurants);
 
-app.put('/restaurants', async (req, res) => {
-    res.send('you updated the restaurant!')
-});
+app.post('/restaurants', postRestaurants);
 
-app.delete('/restaurants', async (req, res) => {
-    res.send('you deleted a restaurant!')
-});
+app.put('/restaurants', putRestaurants);
 
-app.get('/users', async (req, res) =>{
-    const allUsers = await User.getAll();
-    res.json(allUsers);
-});
+app.delete('/restaurants', deleteRestaurants);
 
-app.get('/users/:id', async (req, res) => {
-    const {id} = req.params;
-    const theUser = await User.getById(id);
-    res.json(theUser);
-});
+app.get('/users', getUsers);
 
-app.post('/users', async (req, res) => {
-    const {first_name, last_name, email, password} = req.body;
-    await User.add(first_name, last_name, email, password)
-    res.send(`added a new user ${req.body}`);
-});
+app.get('/users/:id', getUserById);
 
-app.delete('/users/:id', async (req, res) => {
-    const {id} = req.params;
-    await User.delete(id);
-    res.send(`You deleted user: ${id}`);
-});
+app.post('/users', postUsers);
 
-
+app.delete('/users/:id', deleteUser);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`)
